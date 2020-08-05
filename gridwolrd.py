@@ -1,4 +1,6 @@
+from argparse import Action
 import numpy as np
+from enum import IntEnum
 
 class GridWorld:
 
@@ -10,14 +12,21 @@ class GridWorld:
 		self.width = size[1]
 		self.size = size
 		self.goal = (self.height - 1, self.width - 1)
-		self.pos = (0, 0)
+		self.pos = [0, 0]
 
 		# initialize grid
 		self.grid = np.zeros((self.height, self.width))
 		self.grid[self.goal] = 2
 		self.done = False
 
-	def reset(self, random_agent=True):
+		class Actions(IntEnum):
+			up = 0
+			down = 1
+			left = 2
+			right = 3
+		self.actions = Actions
+
+	def reset(self, random_agent=False):
 		'''
 			observation: agent: 1
 						 goal: 2
@@ -29,11 +38,11 @@ class GridWorld:
 		if random_agent is True:
 			# random agent position
 			random_pos = np.random.randint(self.height * self.width - 1)
-			self.pos = (random_pos // self.height, random_pos % self.width)
+			self.pos = [random_pos // self.height, random_pos % self.width]
 		else:
-			self.pos = (0, 0)
+			self.pos = [0, 0]
 
-		self.grid[self.pos] = 1
+		self.grid[self.pos[0], self.pos[1]] = 1
 		self.grid[self.goal] = 2
 		self.done = False
 
@@ -43,31 +52,31 @@ class GridWorld:
 		# action(up:0, down:1, left:2, right:3)
 		original_pos = self.pos.copy()
 		out_of_boundary = False
-		if action == 0:
+		if action == self.actions.up:
 			if self.pos[0] - 1 >= 0:
 				self.pos[0] = self.pos[0] - 1
 			else:
 				out_of_boundary = True
-		elif action == 1:
+		elif action == self.actions.down:
 			if self.pos[0] + 1 < self.height:
 				self.pos[0] = self.pos[0] + 1
 			else:
 				out_of_boundary = True
-		elif action == 2:
+		elif action == self.actions.left:
 			if self.pos[1] - 1 >= 0:
 				self.pos[1] = self.pos[1] - 1
 			else:
 				out_of_boundary = True
-		elif action == 3:
+		elif action == self.actions.right:
 			if self.pos[1] + 1 < self.width:
 				self.pos[1] = self.pos[1] + 1
 			else:
 				out_of_boundary = True
 
-		if self.pos == self.goal:			# 到达目标
+		if (self.pos[0], self.pos[1]) == self.goal:			# 到达目标
 			reward = 1
 			self.done = True
-		elif self.grid[self.pos] == -1:		# 撞墙
+		elif self.grid[(self.pos[0], self.pos[1])] == -1:		# 撞墙
 			reward = 0
 			self.pos = original_pos
 		elif out_of_boundary:				# 越界
@@ -75,8 +84,8 @@ class GridWorld:
 			self.pos = original_pos
 		else:								# 正常
 			reward = 0
-			self.grid[self.pos] = 1
-			self.grid[original_pos] = 0
+			self.grid[self.pos[0], self.pos[1]] = 1
+			self.grid[original_pos[0], original_pos[1]] = 0
 		
 		return self.grid.copy(), reward, self.done
 
@@ -84,10 +93,10 @@ class GridWorld:
 		assert row < self.height
 		assert col < self.width
 
-		original_pos = self.position.copy()
-		self.grid[original_pos] = 0
-		self.pos = (row, col)
-		self.grid[self.pos] = 1
+		original_pos = self.pos.copy()
+		self.grid[original_pos[0], self.original_pos[1]] = 0
+		self.pos = [row, col]
+		self.grid[self.pos[0], self.pos[1]] = 1
 
 		return self.grid.copy()
 
@@ -95,7 +104,7 @@ class GridWorld:
 		pass
 	
 	def render(self):
-		pass
+		return self.grid.copy()
 
 
 
