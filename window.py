@@ -1,12 +1,14 @@
-import sys
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+
 
 class Window:
 	def __init__(self):
 		self.fig, self.ax = plt.subplots()
 		self.fig.canvas.set_window_title("gridworld")
-		self.cmap = mpl.colors.ListedColormap(['black', 'red', 'green', 'cyan'])
+		self.cmap = mpl.colors.ListedColormap(['black', 'white', 'red', 'green'])
+		bounds = [-2, -0.5, 0.5, 1.5, 2]
+		self.norm = mpl.colors.BoundaryNorm(bounds, self.cmap.N)
 
 		self.ax.set_xticks([], [])
 		self.ax.set_yticks([], [])
@@ -18,7 +20,8 @@ class Window:
 		self.fig.canvas.mpl_connect('close_event', close_handler)
 
 	def show_grid(self, grid):
-		self.ax.imshow(grid, cmap=self.cmap)
+		
+		self.ax.imshow(grid, cmap=self.cmap, norm=self.norm)
 		self.fig.canvas.draw()
 
 		# Let matplotlib process UI events

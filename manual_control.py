@@ -1,4 +1,4 @@
-import time
+import sys
 import numpy as np
 from gridwolrd import GridWorld
 from window import Window
@@ -42,7 +42,13 @@ def key_handler(event):
 		return
 
 if __name__ == '__main__':
-	env = GridWorld()
+	if len(sys.argv) >= 2:
+		env = GridWorld((int(sys.argv[1]), int(sys.argv[2])))
+	else:
+		env = GridWorld()
+		file = input("grid file (default None):")
+		if file is not None:
+			env.load_file(file.replace("\\", "/").replace("\"", ""))
 	
 	window = Window()
 	window.reg_key_handler(key_handler)
